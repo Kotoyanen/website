@@ -1,4 +1,12 @@
 <script>
+	import { Modal, getModalStore } from '@skeletonlabs/skeleton';
+	import { initializeStores } from '@skeletonlabs/skeleton';
+	import SignupFormModal from '$lib/components/modals/SignupFormModal.svelte';
+	const signupModalComponent = { ref: SignupFormModal };
+
+	initializeStores();
+	const modalStore = getModalStore();
+
 	import '../app.postcss';
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
 
@@ -21,7 +29,11 @@
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+
+	import IconGithub from 'virtual:icons/mdi/github';
 </script>
+
+<Modal />
 
 <!-- App Shell -->
 <AppShell>
@@ -29,33 +41,46 @@
 		<!-- App Bar -->
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<strong class="text-xl uppercase">Skeleton</strong>
+				<strong class="text-xl uppercase">Kotoyanen</strong>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://discord.gg/EXqV7W8MtY"
+					class="btn-icon btn-sm bg-initial"
+					href="https://github.com/Kotoyanen/website"
 					target="_blank"
 					rel="noreferrer"
 				>
-					Discord
+					<IconGithub />
 				</a>
-				<a
+				<!--Signup Button-->
+				<button
 					class="btn btn-sm variant-ghost-surface"
-					href="https://twitter.com/SkeletonUI"
-					target="_blank"
-					rel="noreferrer"
+					on:click={() => {
+						const modal = {
+							type: 'component',
+							component: signupModalComponent,
+							// TODO: Handle proper signup
+							response: (response) => console.log('response:', response)
+						};
+						modalStore.trigger(modal)
+					}}
 				>
-					Twitter
-				</a>
-				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://github.com/skeletonlabs/skeleton"
-					target="_blank"
-					rel="noreferrer"
+					Sign Up
+				</button>
+				<button
+					class="btn btn-sm variant-ghost-secondary"
+					on:click={() => {
+						const modal = {
+							type: 'component',
+							component: signupModalComponent,
+							// TODO: Handle proper signup
+							response: (response) => console.log('response:', response)
+						};
+						modalStore.trigger(modal)
+					}}
 				>
-					GitHub
-				</a>
+					Login
+				</button>
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
