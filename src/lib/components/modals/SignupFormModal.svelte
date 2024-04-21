@@ -22,6 +22,8 @@
 	let usernameError = "";
 	let emailError = "";
     let passwordError = "";
+	let isSendingRequest = false;
+	let isFormValid = false;
 
 	function onSignupRequest() {
         if (!validateEmail()) {
@@ -44,14 +46,17 @@
             return;
         }
 
+		isSendingRequest = true;
 		if ($modalStore[0].response) $modalStore[0].response(formData);
 	}
 
     function onAnonymousRequest() {
+		isSendingRequest = true;
 		$modalStore[0].response("ANON");
 	}
     
     function onSocialRequest(socialTag) {
+		isSendingRequest = true;
         $modalStore[0].response(socialTag);
     }
 
@@ -64,6 +69,8 @@
     import GithubIcon from 'virtual:icons/mdi/github';
     import DiscordIcon from 'virtual:icons/cbi/discord';
     import TwitterIcon from 'virtual:icons/line-md/twitter';
+
+	import { ProgressBar } from '@skeletonlabs/skeleton';
 
 	//#region Validation Helpers
 	function validateUsername() {
@@ -79,6 +86,7 @@
 
 		// TODO: Check supabase if username is taken...
 		usernameError = "";
+		isFormValid = !usernameError && !passwordError && !emailError;
 		return true;
 	}
 
@@ -94,6 +102,7 @@
 
 		// TODO: Check supabase if email is taken...
         emailError = "";
+		isFormValid = !usernameError && !passwordError && !emailError;
         return true;
     }
 
@@ -115,14 +124,14 @@
             return false;
         }
         passwordError = "";
+		isFormValid = !usernameError && !passwordError && !emailError;
         return true;
     }
 	//#endregion
 
-	let validEmail = validateEmail()
-	let validPassword = validatePassword()
-	let validUsername = validateUsername()
-	$: isFormValid = validEmail && validPassword && validUsername;
+	validateUsername()
+	validateEmail()
+	validatePassword()
 </script>
 
 <!-- @component This example creates a simple form modal. -->
@@ -177,6 +186,10 @@
                 <DiscordIcon/>
             </button>
         </div>
+
+		{#if isSendingRequest }
+			<ProgressBar value={undefined} />
+		{/if}
 
 	</div>
 {/if}
