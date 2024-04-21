@@ -40,7 +40,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@floating-ui/dom": "1.6.3",
+    "@floating-ui/dom": "^1.6.3",
+    "@supabase/supabase-js": "^2.42.5",
     "highlight.js": "11.9.0",
     "unplugin-icons": "^0.18.5"
   }
