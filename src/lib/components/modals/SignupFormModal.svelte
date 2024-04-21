@@ -2,33 +2,57 @@
 <script>
 	// Stores
 	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { getToastStore } from '@skeletonlabs/skeleton';
+
+	const toastStore = getToastStore();
+
+	const modalStore = getModalStore();
 
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent;
 
-	const modalStore = getModalStore();
-
 	// Form Data
 	const formData = {
 		username: '',
-		email: ''
+		email: '',
+		password: ''
 	};
 
-	// We've created a custom submit function to pass the response and close the modal.
+	let usernameError = "";
+	let emailError = "";
+    let passwordError = "";
+
 	function onSignupRequest() {
+        if (!validateEmail()) {
+			const t = {
+				message: 'Please enter a valid email address',
+				hideDismiss: true,
+				timeout: 3000
+			};
+			toastStore.trigger(t);
+            return;
+        }
+
+        if (!validatePassword()) {
+			const t = {
+				message: 'Please enter a valid password',
+				hideDismiss: true,
+				timeout: 3000
+			};
+			toastStore.trigger(t);
+            return;
+        }
+
 		if ($modalStore[0].response) $modalStore[0].response(formData);
-		modalStore.close();
 	}
 
     function onAnonymousRequest() {
 		$modalStore[0].response("ANON");
-		modalStore.close();
 	}
     
     function onSocialRequest(socialTag) {
         $modalStore[0].response(socialTag);
-		modalStore.close();
     }
 
 	// Base Classes
@@ -40,6 +64,65 @@
     import GithubIcon from 'virtual:icons/mdi/github';
     import DiscordIcon from 'virtual:icons/cbi/discord';
     import TwitterIcon from 'virtual:icons/line-md/twitter';
+
+	//#region Validation Helpers
+	function validateUsername() {
+		if (!formData.username) {
+            usernameError = "Username is required.";
+            return false;
+        }
+
+		if (formData.username.length < 4) {
+			usernameError = "Username must be at least 4 characters long!";
+            return false;
+		}
+
+		// TODO: Check supabase if username is taken...
+		usernameError = "";
+		return true;
+	}
+
+    function validateEmail() {
+        if (!formData.email) {
+            emailError = "Email is required.";
+            return false;
+        }
+        if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            emailError = "Please enter a valid email address.";
+            return false;
+        }
+
+		// TODO: Check supabase if email is taken...
+        emailError = "";
+        return true;
+    }
+
+    function validatePassword() {
+        if (!formData.password) {
+            passwordError = "Password is required.";
+            return false;
+        }
+        if (formData.password.length < 8) {
+            passwordError = "Password must be at least 8 characters long.";
+            return false;
+        }
+        if (!/\d/.test(formData.password)) {
+            passwordError = "Password must include at least one digit.";
+            return false;
+        }
+        if (!/[a-zA-Z]/.test(formData.password)) {
+            passwordError = "Password must include at least one letter.";
+            return false;
+        }
+        passwordError = "";
+        return true;
+    }
+	//#endregion
+
+	let validEmail = validateEmail()
+	let validPassword = validatePassword()
+	let validUsername = validateUsername()
+	$: isFormValid = validEmail && validPassword && validUsername;
 </script>
 
 <!-- @component This example creates a simple form modal. -->
@@ -53,17 +136,24 @@
 		<form class="modal-form {cForm}">
 			<label class="label">
 				<span>Username</span>
-				<input class="input" type="text" bind:value={formData.username} placeholder="Enter username..." />
+				<input class="input" type="text" bind:value={formData.username} placeholder="Enter username..." on:blur={validateUsername} />
+				{#if usernameError}<span class="chip variant-filled-error">{usernameError}</span>{/if}
 			</label>
 			<label class="label">
 				<span>Email</span>
-				<input class="input" type="email" bind:value={formData.email} placeholder="Enter email address..." />
+				<input class="input" type="email" bind:value={formData.email} placeholder="Enter email address..." on:blur={validateEmail} />
+				{#if emailError}<span class="chip variant-filled-error">{emailError}</span>{/if}
+			</label>
+			<label class="label">
+				<span>Password</span>
+				<input class="input" type="password" bind:value={formData.password} placeholder="Enter password..." on:blur={validatePassword} />
+				{#if passwordError}<span class="chip variant-filled-error">{passwordError}</span>{/if}
 			</label>
 		</form>
 
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">
-			<button class="btn variant-ghost-primary" on:click={onSignupRequest}>
+			<button class="btn variant-ghost-primary" disabled={!isFormValid} on:click={onSignupRequest}>
                 Sign Up
             </button>
 			<button class="btn variant-ghost-secondary" on:click={onAnonymousRequest}>
