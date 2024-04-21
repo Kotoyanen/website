@@ -1,4 +1,5 @@
 <script>
+	import { Toast, getToastStore } from '@skeletonlabs/skeleton';
 	import { Modal, getModalStore } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import SignupFormModal from '$lib/components/modals/SignupFormModal.svelte';
@@ -9,6 +10,7 @@
 
 	import '../app.postcss';
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { LightSwitch } from '@skeletonlabs/skeleton';
 
 	// Highlight JS
 	import hljs from 'highlight.js/lib/core';
@@ -33,6 +35,7 @@
 	import IconGithub from 'virtual:icons/mdi/github';
 </script>
 
+<Toast />
 <Modal />
 
 <!-- App Shell -->
@@ -81,6 +84,7 @@
 				>
 					Login
 				</button>
+				<LightSwitch />
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
