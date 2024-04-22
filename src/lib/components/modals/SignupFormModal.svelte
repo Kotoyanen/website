@@ -14,12 +14,12 @@
 
 	// Form Data
 	const formData = {
-		username: '',
 		email: '',
 		password: ''
 	};
 
-	let usernameError = "";
+	let signupResult = '';
+
 	let emailError = "";
     let passwordError = "";
 	let isSendingRequest = false;
@@ -63,32 +63,16 @@
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
-	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';
 
     import CloseOutlineIcon from 'virtual:icons/carbon/close-outline';
     import GithubIcon from 'virtual:icons/mdi/github';
     import DiscordIcon from 'virtual:icons/cbi/discord';
     import TwitterIcon from 'virtual:icons/line-md/twitter';
+	import ErrorIcon from 'virtual:icons/material-symbols/error-outline'
 
 	import { ProgressBar } from '@skeletonlabs/skeleton';
 
 	//#region Validation Helpers
-	function validateUsername() {
-		if (!formData.username) {
-            usernameError = "Username is required.";
-            return false;
-        }
-
-		if (formData.username.length < 4) {
-			usernameError = "Username must be at least 4 characters long!";
-            return false;
-		}
-
-		// TODO: Check supabase if username is taken...
-		usernameError = "";
-		isFormValid = !usernameError && !passwordError && !emailError;
-		return true;
-	}
 
     function validateEmail() {
         if (!formData.email) {
@@ -102,7 +86,7 @@
 
 		// TODO: Check supabase if email is taken...
         emailError = "";
-		isFormValid = !usernameError && !passwordError && !emailError;
+		isFormValid = !passwordError && !emailError;
         return true;
     }
 
@@ -124,12 +108,11 @@
             return false;
         }
         passwordError = "";
-		isFormValid = !usernameError && !passwordError && !emailError;
+		isFormValid = !passwordError && !emailError;
         return true;
     }
 	//#endregion
 
-	validateUsername()
 	validateEmail()
 	validatePassword()
 </script>
@@ -141,24 +124,19 @@
 		<header class={cHeader}>Sign Up</header>
 		<article>Sign Up for a new account!</article>
         
-		<!-- Enable for debugging: -->
-		<form class="modal-form {cForm}">
-			<label class="label">
-				<span>Username</span>
-				<input class="input" type="text" bind:value={formData.username} placeholder="Enter username..." on:blur={validateUsername} />
-				{#if usernameError}<span class="chip variant-filled-error">{usernameError}</span>{/if}
-			</label>
-			<label class="label">
-				<span>Email</span>
-				<input class="input" type="email" bind:value={formData.email} placeholder="Enter email address..." on:blur={validateEmail} />
-				{#if emailError}<span class="chip variant-filled-error">{emailError}</span>{/if}
-			</label>
-			<label class="label">
-				<span>Password</span>
-				<input class="input" type="password" bind:value={formData.password} placeholder="Enter password..." on:blur={validatePassword} />
-				{#if passwordError}<span class="chip variant-filled-error">{passwordError}</span>{/if}
-			</label>
-		</form>
+		<label class="label">
+			<span>Email</span>
+			<input class="input" type="email" bind:value={formData.email} placeholder="Enter email address..." on:blur={validateEmail} />
+			{#if emailError}<span class="chip variant-filled-error">{emailError}</span>{/if}
+		</label>
+		<blockquote class="blockquote">We recommend using an <a class="anchor" href="https://simplelogin.io/" target="_blank" rel="noopener">email aliasing service</a>!</blockquote>
+		<label class="label">
+			<span>Password</span>
+			<input class="input" type="password" bind:value={formData.password} placeholder="Enter password..." on:blur={validatePassword} />
+			{#if passwordError}<span class="chip variant-filled-error">{passwordError}</span>{/if}
+		</label>
+		<blockquote class="blockquote">Don't worry! You will enter your username after you validate your email!</blockquote>
+
 
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">
@@ -173,6 +151,8 @@
             </button>
 		</footer>
 
+	<!-- 
+		NOTE: UI Elements that is originally used for signing up with other providers...
         <hr>
         <h4>Or continue with:</h4>
         <div class="social-buttons">
@@ -186,9 +166,20 @@
                 <DiscordIcon/>
             </button>
         </div>
+	-->
 
 		{#if isSendingRequest }
-			<ProgressBar value={undefined} />
+			{#if signupResult}
+				<aside class="alert variant-ghost">
+					<div><ErrorIcon/></div>
+					<div class="alert-message">
+						<h3 class="h3">Error</h3>
+						<p>{signupResult}</p>
+					</div>
+				</aside>
+			{:else if !signupResult}
+				<ProgressBar value={undefined} />
+			{/if}
 		{/if}
 
 	</div>
